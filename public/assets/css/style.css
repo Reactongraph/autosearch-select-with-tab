@@ -1,0 +1,159 @@
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+li.active > a {
+  background: rgba(239, 239, 239, 0.5);
+  cursor: pointer;
+  margin: 0;
+  color: #01b7f2;
+  text-decoration: none;
+}
+
+.autocomplete {
+  border: 1px solid #01b7f2;
+  width: 320px;
+  max-height: 380px;
+  overflow: auto;
+}
+
+.ui-autocomplete {
+  /* position: absolute; */
+  /* top: 100%; */
+  /* left: 0; */
+  /* z-index: 10001; */
+  /* float: left; */
+  display: block;
+  padding: 4px 0;
+  margin: 2px 0 0 0;
+  list-style: none;
+  background-color: #fff;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+  *border-right-width: 2px;
+  *border-bottom-width: 2px;
+}
+
+.airport-menu-item {
+  cursor: pointer;
+  display: table;
+  box-sizing: border-box;
+  height: 44px;
+  width: 100%;
+  background-color: #fff;
+  font-size: 14px;
+  border-top: 1px solid #ccc;
+  color: #333;
+  line-height: 1.2;
+  transition: all ease-in-out 0.3s;
+}
+
+.airport-menu-item:hover {
+  border: none;
+  background: rgba(239, 239, 239, 0.5);
+  cursor: pointer;
+  margin: 0;
+  color: #01b7f2;
+  text-decoration: none;
+}
+
+.airport-menu-item:first-child {
+  border: none;
+}
+
+.autocomplete .airport-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+}
+
+.airport-menu-text {
+  display: table-cell;
+  vertical-align: middle;
+  white-space: nowrap;
+  padding: 0 6px;
+  max-width: 235px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.autocomplete .airport-menu-text {
+  color: #4b6d93;
+  padding: 0 15px;
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+}
+
+.autocomplete .airport-menu-text .airport_name {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.airport-menu-text .airport-menu-country {
+  font-size: 14px;
+  font-weight: normal;
+  color: #999;
+  display: block;
+  vertical-align: middle;
+}
+
+.autocomplete .airport-menu-text .airport-menu-country {
+  color: #4b6d93;
+  opacity: 0.52;
+  letter-spacing: 0.04em;
+  font-size: 0.833em;
+  margin-left: 10px;
+}
+
+.autocomplete .airport-menu-item.child-item {
+  padding: 0 10px 0 40px;
+}
+
+.airport-menu-icon img {
+  height: 18px;
+}
+
+.form-icon svg {
+  height: 18px;
+  fill: #ffcd00;
+}
+
+.input-field {
+  border: none;
+  width: 100%;
+  outline: none;
+  color: #111;
+  height: 44px;
+  line-height: 44px;
+  padding: 0 10px 0 22px;
+}
+
+.inputfield {
+  width: 320px;
+  position: relative;
+  border: 1px solid #eee;
+  padding: 0 12px;
+}
+
+.form-icon {
+  position: absolute;
+  left: 6px;
+  top: 14px;
+}
