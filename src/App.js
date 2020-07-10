@@ -4,12 +4,122 @@ import InputContainer from "./common/Input";
 import ImageContainer from "./common/Image";
 
 class App extends Component {
-  state = {
-    leaveFrom: "",
-    searchData: [],
-    activeOption: "",
-    showOptions: false,
-    orignalData: []
+  constructor(props) {
+    super(props);
+    this.state = {
+      leaveFrom: "",
+      searchData: [],
+      activeOption: "",
+      showOptions: false,
+      orignalData: []
+    };
+    this.deBouncing = null;
+  }
+
+  // Handle Search api
+  _handleSearch = () => {
+    const { leaveFrom } = this.state;
+    axios
+      .get(
+        `https://autocomplete.travelpayouts.com/jravia?locale=en&with_countries=false&q=${leaveFrom}`
+      )
+      .then(response => {
+        if (response.status === 200) {
+          // Handle data according to country code, type: city || airport
+          let cityData = [];
+          let actualData = [];
+          let airportData = {};
+          response.data.length &&
+            response.data.map((data, index) => {
+              actualData = [...actualData, { ...data }];
+
+              // Handle if object is city
+              if (data._type === "city") {
+                if (data._type in airportData) {
+                  cityData = [
+                    ...cityData,
+                    { ...data, children: [airportData[data._type]] }
+                  ];
+                } else {
+                  cityData = [...cityData, { ...data, children: [] }];
+                }
+              }
+
+              // Handle if object is airport
+              if (data._type === "airport") {
+                let cityIndex = cityData.findIndex(
+                  r => r.city_code === data.city_code
+                );
+
+                // Checks whether exist or not in cityData, if is for not exist
+                if (cityIndex === -1) {
+                  // Checks if airport data is already exist for current object
+                  if (airportData[data._type]) {
+                    airportData[data._type] = [
+                      ...airportData[data._type],
+                      { ...data, findIndex: index }
+                    ];
+                  } else {
+                    airportData[data.city_code] = [
+                      { ...data, findIndex: index }
+                    ];
+                  }
+                } else {
+                  // If current object data is already exist in cityData
+                  let newObj = {
+                    ...cityData[cityIndex],
+                    children: [
+                      ...cityData[cityIndex].children,
+                      { ...data, findIndex: index }
+                    ]
+                  };
+                  cityData.splice(cityIndex, 1, {
+                    ...newObj
+                  });
+                }
+              }
+            });
+
+          // Maping airport data whose city is not available
+          if (Object.keys(airportData).length) {
+            Object.keys(airportData).map(data => {
+              let cityIndex = cityData.findIndex(r => r.city_code === data);
+              if (cityIndex === -1) {
+                cityData.splice(
+                  airportData[data][0].findIndex,
+                  0,
+                  airportData[data][0]
+                );
+              } else {
+                let newChildren = [
+                  ...cityData[cityIndex].children,
+                  { ...airportData[data][0] }
+                ];
+
+                newChildren.sort(
+                  (a, b) => parseFloat(a.findIndex) - parseFloat(b.findIndex)
+                );
+
+                let newObj = {
+                  ...cityData[cityIndex],
+                  children: [...newChildren]
+                };
+                cityData.splice(cityIndex, 1, {
+                  ...newObj
+                });
+              }
+            });
+          }
+
+          this.setState({
+            searchData: cityData,
+            orignalData: actualData
+          });
+        }
+      })
+      .catch(function(error) {
+        console.log("error");
+      });
   };
 
   // Handle Change and hit api conditionly
@@ -19,63 +129,10 @@ class App extends Component {
         [event.target.name]: event.target.value
       },
       () => {
-        const { leaveFrom } = this.state;
-        if (leaveFrom.length === 3) {
-          axios
-            .get(
-              `https://autocomplete.travelpayouts.com/jravia?locale=en&with_countries=false&q=${leaveFrom.toUpperCase()}`
-            )
-            .then(response => {
-              if (response.status === 200) {
-                // Handle data according to country code, type: city || airport
-                let modifiedData = [];
-                let actualData = [];
-                let count = 0;
-                response.data.length &&
-                  response.data.map((data, index) => {
-                    actualData = [...actualData, { ...data }];
-                    if (data._type === "city") {
-                      modifiedData = [
-                        ...modifiedData,
-                        { ...data, children: [] }
-                      ];
-                    }
-
-                    if (data._type === "airport") {
-                      let objIndex = modifiedData.findIndex(
-                        r => r.country_code === data.country_code
-                      );
-                      let findData = modifiedData.find(
-                        r => r.country_code === data.country_code
-                      );
-
-                      if (objIndex !== -1 && findData._type === "city") {
-                        modifiedData.splice(objIndex, 1, {
-                          ...findData,
-                          children: [...findData.children, { ...data }]
-                        });
-                      } else {
-                        modifiedData = [
-                          ...modifiedData,
-                          { ...data, children: [] }
-                        ];
-                      }
-                    }
-                    return "";
-                  });
-                this.setState({
-                  searchData: modifiedData,
-                  orignalData: actualData
-                });
-              }
-            })
-            .catch(function(error) {
-              // handle error
-              console.log("error");
-            });
-        } else {
-          this.setState({ searchData: [] });
-        }
+        clearTimeout(this.deBouncing);
+        this.deBouncing = setTimeout(() => {
+          this._handleSearch();
+        }, 300);
       }
     );
   };
@@ -108,7 +165,7 @@ class App extends Component {
                       <div className="airport-menu-icon">
                         <ImageContainer
                           src={
-                            data.children.length
+                            data._type === "city"
                               ? "/hotel-1.svg"
                               : "travels-1.svg"
                           }
@@ -117,9 +174,7 @@ class App extends Component {
                       </div>
                       <div className="airport-menu-text">
                         <span className="airport_name">
-                          {data._type === "city"
-                            ? data.city_fullname
-                            : data.name}
+                          {data.city_fullname}
                         </span>
                         <span className="airport-menu-country">
                           {data._type === "city" ? "All Airports" : data.code}
